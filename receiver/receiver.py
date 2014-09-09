@@ -41,12 +41,18 @@ def main():
     audio_files = requests.get("http://"+DOMAIN+"/server/list.php?user="+USER)
     files = audio_files.text.split("\n")
     files.pop()
+    
+    print("Files: "+ str(files))
+
+    if len(files) == 0:
+        print("No files to retrieve")
+        exit()
 
     for a in files:
         audiopath=TEMPDIR +'/'+ a.split('/')[-1]
         
         r = requests.get("http://"+DOMAIN+"/server/"+a, stream=True)
-        
+        print("Retrieving file "+a)
         if r.status_code == 200:
             if not os.path.exists(audiopath):
 
@@ -68,4 +74,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Exiting :)")
         running=False
+        exit()
 
