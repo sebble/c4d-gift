@@ -3,12 +3,14 @@ import os
 import requests
 import shutil
 import pygame
+import glob
 from time import sleep
 from subprocess import call
 
 USER="sam"
 DOMAIN="c4d.sbl.io"
 TEMPDIR='audio-temp'
+MUSICDIR='music'
 running=True
 audio_files=[]
 
@@ -24,23 +26,26 @@ def play_sound( filename ):
         sleep(0.2)
         continue
 
-def play_sound_over( fn_bg, fn_fg=[] ):
+def play_sound_over( fn_bg=[], fn_fg=[] ):
     print(str(fn_fg))
+    print(str(fn_bg))
     pygame.mixer.init()
-    pygame.mixer.music.load(fn_bg)
-    pygame.mixer.music.play()
 
-    while pygame.mixer.music.get_busy() == True:
-        sleep(5)
-        for f in fn_fg:
-            s=pygame.mixer.Sound(f)
-            channel=s.play(0,0,200)
-            while channel.get_busy() == True:
-                sleep(0.2)
-                continue
-        
-        # Finish immediately after audio if uncommented:
-        break
+    for m in fn_bg:
+        pygame.mixer.music.load(m)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy() == True:
+            for f in fn_fg:
+                sleep(5)
+                s=pygame.mixer.Sound(f)
+                channel=s.play(0,0,200)
+                while channel.get_busy() == True:
+                    sleep(0.2)
+                    continue
+            
+            # Finish immediately after audio if uncommented:
+            break
 
 
 def mkdir_p( dirname ):
@@ -54,14 +59,15 @@ def rm_r(path):
         os.remove(path)
 
 
-def main():
-    import glob
+def main_test():
     files=glob.glob(TEMPDIR+"/*.wav")
-    play_sound_over("maybe.wav", files)
+    music=glob.glob(MUSICDIR+"/*.wav")
+    play_sound_over(music, files)
 
 
-def main2():
+def main():
     mkdir_p(TEMPDIR)
+    music=glob.glob(MUSICDIR+"/*.wav")
 
     audio_files = requests.get("http://"+DOMAIN+"/server/list.php?user="+USER)
     files = audio_files.text.split("\n")
@@ -73,9 +79,10 @@ def main2():
         print("No files to retrieve")
         exit()
 
-    for a in files:
-        audiopath=TEMPDIR +'/'+ a.split('/')[-1]
-        
+    #retrieve
+    for i,a in enumerate(files):
+        audiopath = TEMPDIR +'/'+ a.split('/')[-1]
+        files[i] = audiopath 
         r = requests.get("http://"+DOMAIN+"/server/"+a, stream=True)
         print("Retrieving file "+a)
         if r.status_code == 200:
@@ -86,10 +93,9 @@ def main2():
                         f.write(chunk)
             else:    
                 print("Already have file " + audiopath)
-
-        print("Playing file "+ audiopath)
-        play_sound( audiopath )
-#        play_sound_fm( audiopath )
+   
+    #play
+    play_sound_over( music,files ) 
 
     rm_r(TEMPDIR)
 
