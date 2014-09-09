@@ -33,17 +33,30 @@ def play_sound_over( fn_bg=[], fn_fg=[] ):
 
     for m in fn_bg:
         pygame.mixer.music.load(m)
+        pygame.mixer.music.set_volume(1)
         pygame.mixer.music.play()
 
         while pygame.mixer.music.get_busy() == True:
             for f in fn_fg:
                 sleep(5)
+                for i in range(6):
+                    v = (1-(.18*i))
+                    print("Music volume: %.2f" % v)
+                    pygame.mixer.music.set_volume(v)
+                    sleep(.2)
+                sleep(.5)
                 print("playing "+f)
                 s=pygame.mixer.Sound(f)
                 channel=s.play(0,0,200)
                 while channel.get_busy() == True:
                     sleep(0.2)
                     continue
+                sleep(.5)
+                for i in range(6):
+                    v = (1-(.18*5)+(.18*i))
+                    print("Music volume: %.2f" % v)
+                    pygame.mixer.music.set_volume(v)
+                    sleep(.2)
             
             # Finish immediately after audio if uncommented:
 #            break
