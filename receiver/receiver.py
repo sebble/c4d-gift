@@ -1,12 +1,11 @@
 #!/usr/bin/python
 import os
 import requests
+import shutil
 import pygame
 from time import sleep
 from subprocess import call
-from threading  import Thread
-import os
-import shutil
+
 USER="sam"
 DOMAIN="c4d.sbl.io"
 TEMPDIR='audio-temp'
@@ -25,6 +24,25 @@ def play_sound( filename ):
         sleep(0.2)
         continue
 
+def play_sound_over( fn_bg, fn_fg=[] ):
+    print(str(fn_fg))
+    pygame.mixer.init()
+    pygame.mixer.music.load(fn_bg)
+    pygame.mixer.music.play()
+
+    while pygame.mixer.music.get_busy() == True:
+        sleep(5)
+        for f in fn_fg:
+            s=pygame.mixer.Sound(f)
+            channel=s.play(0,0,200)
+            while channel.get_busy() == True:
+                sleep(0.2)
+                continue
+        
+        # Finish immediately after audio if uncommented:
+        break
+
+
 def mkdir_p( dirname ):
     if not os.path.exists( dirname ):
         os.makedirs( dirname )
@@ -35,7 +53,14 @@ def rm_r(path):
     elif os.path.exists(path):
         os.remove(path)
 
+
 def main():
+    import glob
+    files=glob.glob(TEMPDIR+"/*.wav")
+    play_sound_over("maybe.wav", files)
+
+
+def main2():
     mkdir_p(TEMPDIR)
 
     audio_files = requests.get("http://"+DOMAIN+"/server/list.php?user="+USER)
