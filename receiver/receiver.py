@@ -14,6 +14,8 @@ MUSICDIR='music'
 running=True
 audio_files=[]
 
+intro_seconds=15
+
 def play_sound_fm( filename ):
     call(["./PiFmDma/PiFmDma", filename])
     return
@@ -31,34 +33,37 @@ def play_sound_over( fn_bg=[], fn_fg=[] ):
     print(str(fn_bg))
     pygame.mixer.init()
 
-    for m in fn_bg:
-        pygame.mixer.music.load(m)
-        pygame.mixer.music.set_volume(1)
-        pygame.mixer.music.play()
+    while running:
+        for m in fn_bg:
+            pygame.mixer.music.load(m)
+            pygame.mixer.music.set_volume(1)
+            pygame.mixer.music.play()
 
-        while pygame.mixer.music.get_busy() == True:
-            for f in fn_fg:
-                sleep(5)
-                for i in range(6):
-                    v = (1-(.18*i))
-                    print("Music volume: %.2f" % v)
-                    pygame.mixer.music.set_volume(v)
-                    sleep(.2)
-                sleep(.5)
-                print("playing "+f)
-                s=pygame.mixer.Sound(f)
-                channel=s.play(0,0,200)
-                while channel.get_busy() == True:
-                    sleep(0.2)
-                    continue
-                sleep(.5)
-                for i in range(6):
-                    v = (1-(.18*5)+(.18*i))
-                    print("Music volume: %.2f" % v)
-                    pygame.mixer.music.set_volume(v)
-                    sleep(.2)
-            
-            # Finish immediately after audio if uncommented:
+            while pygame.mixer.music.get_busy() == True:
+                sleep(intro_seconds)
+                for f in fn_fg:
+                    sleep(5)
+                    for i in range(6):
+                        v = (1-(.18*i))
+                        print("Music volume: %.2f" % v)
+                        pygame.mixer.music.set_volume(v)
+                        sleep(.2)
+                    sleep(.5)
+                    print("playing "+f)
+                    s=pygame.mixer.Sound(f)
+                    channel=s.play(0,0,200)
+                    while channel.get_busy() == True:
+                        sleep(0.2)
+                        continue
+                    sleep(.5)
+                    for i in range(6):
+                        v = (1-(.18*5)+(.18*i))
+                        print("Music volume: %.2f" % v)
+                        pygame.mixer.music.set_volume(v)
+                        sleep(.2)
+                
+                # Finish immediately after audio if uncommented:
+                fn_fg=retrieve()
 #            break
 
 
@@ -78,11 +83,7 @@ def main_test():
     music=glob.glob(MUSICDIR+"/*.wav")
     play_sound_over(music, files)
 
-
-def main():
-    mkdir_p(TEMPDIR)
-    music=glob.glob(MUSICDIR+"/*.wav")
-
+def retrieve():
     audio_files = requests.get("http://"+DOMAIN+"/server/list.php?user="+USER)
     files = audio_files.text.split("\n")
     files.pop()
@@ -107,7 +108,14 @@ def main():
                         f.write(chunk)
             else:    
                 print("Already have file " + audiopath)
-   
+
+    return files
+
+def main():
+    mkdir_p(TEMPDIR)
+    music=glob.glob(MUSICDIR+"/*.wav")
+
+    files=retrieve() 
     #play
     play_sound_over( music,files ) 
 
