@@ -38,6 +38,7 @@ def play_sound_over( fn_bg=[], fn_fg=[] ):
         while pygame.mixer.music.get_busy() == True:
             for f in fn_fg:
                 sleep(5)
+                print("playing "+f)
                 s=pygame.mixer.Sound(f)
                 channel=s.play(0,0,200)
                 while channel.get_busy() == True:
@@ -45,7 +46,7 @@ def play_sound_over( fn_bg=[], fn_fg=[] ):
                     continue
             
             # Finish immediately after audio if uncommented:
-            break
+#            break
 
 
 def mkdir_p( dirname ):
@@ -97,7 +98,7 @@ def main():
     #play
     play_sound_over( music,files ) 
 
-    rm_r(TEMPDIR)
+#    rm_r(TEMPDIR)
 
 if __name__ == "__main__":
     try:
