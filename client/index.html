@@ -4,11 +4,12 @@
         <meta charset="utf-8">
         <title>GIFT</title>
 
-                <meta name="description" content="">
-                        <meta name="HandheldFriendly" content="True">
-                                <meta name="MobileOptimized" content="320">
-                                        <meta name="viewport" content="width=device-width, initial-scale=1">
-                                                <meta http-equiv="cleartype" content="on">
+        <meta name="description" content="">
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="cleartype" content="on">
+
     </head>
     <body>
         <style>
@@ -79,6 +80,7 @@
             var recordRTC;
             navigator.getUserMedia({audio:true,video:false}, function(mediaStream){
                 recordRTC = RecordRTC(mediaStream); 
+                //recordRTC = RecordRTC(mediaStream, {type:'audio', }); 
             }, function(e){console.log(e);});
             var recording = function(){return $('ul').hasClass('recording');};
             var record = function(){return $('ul').addClass('recording');};
@@ -123,7 +125,7 @@ function xhr(url, data, callback) {
                     $('li').removeClass('selected');
 
                     recordRTC.stopRecording(function(audioURL) { 
-                        document.getElementById('rec').src = audioURL; 
+                        //document.getElementById('rec').src = audioURL; 
                         upload(recordRTC.getBlob());
                     });
                 });
