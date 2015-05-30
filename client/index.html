@@ -3,6 +3,12 @@
     <head>
         <meta charset="utf-8">
         <title>GIFT</title>
+
+                <meta name="description" content="">
+                        <meta name="HandheldFriendly" content="True">
+                                <meta name="MobileOptimized" content="320">
+                                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                                                <meta http-equiv="cleartype" content="on">
     </head>
     <body>
         <style>
@@ -30,14 +36,14 @@
                 z-index: 5;
             }
             li.selected {
-                outline: solid 3px #0f9;
+                outline: solid 3px #900;
             }
-            ul.recording .fill {
+            /*ul.recording .selected .fill {
                 -webkit-animation: flash linear 2s infinite;
                 animation: flash linear 2s infinite;
             }
             @-webkit-keyframes flash {
-                0% { opacity: 1; } 
+                0% { outline: solid 3px #900; } 
                 50% { opacity: .1; } 
                 100% { opacity: 1; }
             }
@@ -45,45 +51,97 @@
                 0% { opacity: 1; } 
                 50% { opacity: .1; } 
                 100% { opacity: 1; }
+            }*/
+
+            button {
+                width: 70%;
             }
         </style>
         <ul>
-            <li><div class="fill"></div><span>All</span></li>
-            <li><div class="fill"></div><span>Connor</span></li>
-            <li><div class="fill"></div><span>Mary</span></li>
-            <li class="selected"><div class="fill"></div><span>Sam</span></li>
-            <li><div class="fill"></div><span>Sebastian</span></li>
-            <li><button>Record</button></li>
+            <!--<li><div class="fill"></div><span>All</span></li>-->
+            <li class="person"><div class="fill"></div><span>Connor</span></li>
+            <li class="person"><div class="fill"></div><span>Mary</span></li>
+            <li class="person"><div class="fill"></div><span>Sam</span></li>
+            <li class="person"><div class="fill"></div><span>Sebastian</span></li>
+            <li><button id="stop" disabled>Stop</button></li>
+            <!--<li><audio id="rec" controls="controls"></audio></li>-->
         </ul>
         <script src="//cdn.webrtc-experiment.com/RecordRTC.js"></script>
         <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
         <script>
 
-            var recordRTC = RecordRTC(mediaStream); 
+        var isFirefox = true;
+
+            navigator.getUserMedia = navigator.getUserMedia ||
+                                     navigator.webkitGetUserMedia ||
+                                     navigator.mozGetUserMedia;
+
+            var recordRTC;
+            navigator.getUserMedia({audio:true,video:false}, function(mediaStream){
+                recordRTC = RecordRTC(mediaStream); 
+            }, function(e){console.log(e);});
             var recording = function(){return $('ul').hasClass('recording');};
             var record = function(){return $('ul').addClass('recording');};
+
+function upload(blob){
+
+var fileType = 'audio'; // or "audio"
+var fileName = 'sam.wav';  // or "wav"
+
+users = 'sam';
+
+var formData = new FormData();
+formData.append(fileType + '-filename', fileName);
+formData.append(fileType + '-blob', blob);
+
+xhr('/server/rcv.php', formData, function (fName) {
+    console.log(fName);
+    //window.open(location.href + fName);
+});
+
+function xhr(url, data, callback) {
+    var request = new XMLHttpRequest();
+    request.onreadystatechange = function () {
+        if (request.readyState == 4 && request.status == 200) {
+            callback(location.href + request.responseText);
+        }
+    };
+    request.open('POST', url);
+    request.send(data);
+}
+
+}
+
+
             var stop = function(){return $('ul').removeClass('recording');};
 
             $(function(){
 
-                $('button').click(function(){
-                    if (recording()) {
-                        stop();
-                    } else {
-                        record();
-                    }
-                });
-                
-                $('span').click(function(){
-                    $(this).parent().toggleClass('selected');
-                    recording = 1;
-                    recordRTC.startRecording(); 
+                $('#stop').click(function(){
+                    $('ul').removeClass('recording');
+                    $('#stop').attr('disabled','disabled');
+                    $('li').removeClass('selected');
+
                     recordRTC.stopRecording(function(audioURL) { 
-                            mediaElement.src = audioURL; 
+                        document.getElementById('rec').src = audioURL; 
+                        upload(recordRTC.getBlob());
                     });
                 });
                 
+                $('.person').click(function(){
+
+                    $(this).toggleClass('selected');
+                    $('#stop').attr('disabled',false);
+
+                    if (!recording()) {
+                        $('ul').addClass('recording');
+                        recordRTC.startRecording(); 
+                    }
+
+                });
+                
             });
+
         </script>
     </body>
 </html>
