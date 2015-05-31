@@ -22,8 +22,6 @@ foreach(array('video', 'audio') as $type) {
         $r = rand(10000,99999);
         $f = 'uploads/sam-'.$r.'.'.$ext;
         
-        `touch $f.touch`;
-
         if (!move_uploaded_file($_FILES["${type}-blob"]["tmp_name"], $f)) {
             echo(" problem moving uploaded file");
         } else {
