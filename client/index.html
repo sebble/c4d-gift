@@ -7,44 +7,31 @@
         <meta name="description" content="">
         <meta name="HandheldFriendly" content="True">
         <meta name="MobileOptimized" content="320">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1">-->
         <meta http-equiv="cleartype" content="on">
+        <meta name="mobile-web-app-capable" content="yes">
+
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="">
+
+        <script src="webcomponents-lite.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/materialize/0.96.1/css/materialize.min.css">
 
     </head>
     <body>
         <style>
-            li {
-                width: 90%;
-                border: solid 1px #333;
-                border-radius: 5px;
-                list-style: none;
-                margin: .5em;
-                padding: .5em;
-                background-color: #eee;
-                position: relative;
+            ul.recording .mdi-av-mic {
+                opacity: 0;
+                color: #f00;
             }
-            li > .fill {
-                background-color: #09f;
-                position: absolute;
-                top: 0;
-                left: 0;
-                height: 100%;
-                width: 15%;
-                z-index: 1;
-            }
-            li > span {
-                position: relative;
-                z-index: 5;
-            }
-            li.selected {
-                outline: solid 3px #900;
-            }
-            /*ul.recording .selected .fill {
+            ul.recording .active i {
                 -webkit-animation: flash linear 2s infinite;
                 animation: flash linear 2s infinite;
             }
             @-webkit-keyframes flash {
-                0% { outline: solid 3px #900; } 
+                0% { opacity: 1; } 
                 50% { opacity: .1; } 
                 100% { opacity: 1; }
             }
@@ -52,21 +39,23 @@
                 0% { opacity: 1; } 
                 50% { opacity: .1; } 
                 100% { opacity: 1; }
-            }*/
-
-            button {
-                width: 70%;
             }
         </style>
-        <ul>
-            <!--<li><div class="fill"></div><span>All</span></li>-->
-            <li class="person"><div class="fill"></div><span>Connor</span></li>
-            <li class="person"><div class="fill"></div><span>Mary</span></li>
-            <li class="person"><div class="fill"></div><span>Sam</span></li>
-            <li class="person"><div class="fill"></div><span>Sebastian</span></li>
-            <li><button id="stop" disabled>Stop</button></li>
-            <!--<li><audio id="rec" controls="controls"></audio></li>-->
-        </ul>
+
+        <div class="container">
+            <style>h4 {color:#999;} h4 strong{color:#000;}</style>
+            <h4><strong>G</strong>iving <strong>I</strong>nteractions <strong>F</strong>rom <strong>T</strong>oday</h4>
+            <ul class="collection">
+                <!--<li><div class="fill"></div><span>All</span></li>-->
+                <li class="collection-item person"><div class="fill"></div><span>Conor Linehan</span><i class="mdi-av-mic right"></i></li>
+                <li class="collection-item person"><div class="fill"></div><span>Mary Galvin</span><i class="mdi-av-mic right"></i></li>
+                <li class="collection-item person"><div class="fill"></div><span>Sam Finnigan</span><i class="mdi-av-mic right"></i></li>
+                <li class="collection-item person"><div class="fill"></div><span>Sebastian Mellor</span><i class="mdi-av-mic right"></i></li>
+                <li class="collection-item" style="text-align: center;"><a class="waves-effect waves-light btn disabled" id="stop"><i class="mdi-action-done right"></i>Stop and save recording</a></li>
+                <!--<li><audio id="rec" controls="controls"></audio></li>-->
+            </ul>
+        </div>
+
         <script src="//cdn.webrtc-experiment.com/RecordRTC.js"></script>
         <script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
         <script>
@@ -122,7 +111,8 @@ function xhr(url, data, callback) {
                 $('#stop').click(function(){
                     $('ul').removeClass('recording');
                     $('#stop').attr('disabled','disabled');
-                    $('li').removeClass('selected');
+                    $('#stop').addClass('disabled');
+                    $('li').removeClass('active');
 
                     recordRTC.stopRecording(function(audioURL) { 
                         //document.getElementById('rec').src = audioURL; 
@@ -132,8 +122,9 @@ function xhr(url, data, callback) {
                 
                 $('.person').click(function(){
 
-                    $(this).toggleClass('selected');
+                    $(this).toggleClass('active');
                     $('#stop').attr('disabled',false);
+                    $('#stop').removeClass('disabled');
 
                     if (!recording()) {
                         $('ul').addClass('recording');
